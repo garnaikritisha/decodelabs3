@@ -1,0 +1,92 @@
+name: DevOps Project Tracker CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Permissions required for GitHub Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment to GitHub Pages
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  # ==========================================================================
+  # STAGE 1 & 2: Source Code Ingestion & Build/Validation
+  # ==========================================================================
+  validate:
+    name: 'Stage 1 & 2: Build & Validation'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Stage 1: Checkout Source Repository'
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache-dependency-path: package.json
+
+      - name: 'Stage 2: Validate Project Structure & Files'
+        run: node scripts/validate-structure.js
+
+      - name: 'Stage 2: Lint & Validate JavaScript Syntax'
+        run: node --check script.js
+
+  # ==========================================================================
+  # STAGE 3: Automated Testing
+  # ==========================================================================
+  test:
+    name: 'Stage 3: Automated Testing'
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout Source Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 'Stage 3: Run Automated Test Suite'
+        run: npm test
+
+  # ==========================================================================
+  # STAGE 4 & 5: Quality Gate & Deployment to GitHub Pages
+  # ==========================================================================
+  deploy:
+    name: 'Stage 4 & 5: Quality Gate & GitHub Pages Deploy'
+    runs-on: ubuntu-latest
+    # STAGE 4: Quality Gate - Strict dependency on validate and test jobs
+    needs: [validate, test]
+    # Deploy only on pushes to main branch (never on pull requests)
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout Source Repository
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: 'Stage 5: Deploy to GitHub Pages'
+        id: deployment
+        uses: actions/deploy-pages@v4

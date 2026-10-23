@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DevOps Project Tracker - Automated CI/CD Pipeline project for DecodeLabs Industrial Training Kit (Batch 2026). Built with HTML, CSS, JavaScript, and GitHub Actions.">
+  <meta name="author" content="DecodeLabs DevOps Engineer">
+  <title>DevOps Project Tracker | CI/CD Pipeline Dashboard</title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background Glow & Grid Canvas -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-grid-pattern"></div>
+
+  <!-- Main Navigation Header -->
+  <header class="app-header" id="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">DevOps Project Tracker</h1>
+          <p class="brand-subtitle">DecodeLabs Industrial Training • Project 3 (Batch 2026)</p>
+        </div>
+      </div>
+
+      <div class="header-status-group">
+        <div class="status-chip chip-env" title="Target Deployment Environment">
+          <span class="status-dot dot-emerald"></span>
+          <span class="chip-label">Target:</span>
+          <span class="chip-val">GitHub Pages</span>
+        </div>
+        <div class="status-chip chip-branch" title="Monitored Git Branch">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="6" y1="3" x2="6" y2="15"></line>
+            <circle cx="18" cy="6" r="3"></circle>
+            <circle cx="6" cy="18" r="3"></circle>
+            <path d="M18 9a9 9 0 0 1-9 9"></path>
+          </svg>
+          <span class="chip-val">main</span>
+        </div>
+        <div class="status-chip chip-pipeline" id="pipeline-status-badge" title="Automated Quality Gate Status">
+          <span class="status-dot dot-pulse" id="pipeline-indicator"></span>
+          <span class="chip-label">Pipeline:</span>
+          <span class="chip-val" id="pipeline-badge-text">Healthy • Passing</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content" id="main-content">
+    
+    <!-- Hero / Overview Banner -->
+    <section class="overview-section" id="project-overview">
+      <div class="overview-header">
+        <div>
+          <span class="section-badge">Project 3 Overview</span>
+          <h2 class="section-title">CI/CD Pipeline Command Center</h2>
+          <p class="section-description">
+            Automated Continuous Integration and Continuous Deployment pipeline monitoring and sprint task tracking.
+            Every commit to <code>main</code> triggers automated validation, unit testing, quality gates, and zero-downtime deployment.
+          </p>
+        </div>
+        <div class="overview-actions">
+          <button type="button" class="btn btn-secondary" id="btn-simulate-pipeline" title="Run interactive pipeline simulation">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Simulate CI/CD Run
+          </button>
+          <a href="#deployment-section" class="btn btn-primary" id="btn-view-deployment">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            Deployment Status
+          </a>
+        </div>
+      </div>
+
+      <!-- KPI Metrics Row -->
+      <div class="metrics-grid" id="task-stats">
+        <div class="metric-card">
+          <div class="metric-icon icon-cyan">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+          </div>
+          <div class="metric-details">
+            <span class="metric-label">Total DevOps Tasks</span>
+            <span class="metric-value" id="stat-total">0</span>
+            <span class="metric-subtext">Active sprint backlog</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon icon-emerald">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <div class="metric-details">
+            <span class="metric-label">Completed</span>
+            <span class="metric-value" id="stat-completed">0</span>
+            <div class="progress-wrap">
+              <div class="progress-bar" id="completion-progress-bar" style="width: 0%"></div>
+            </div>
+            <span class="metric-subtext" id="stat-completion-pct">0% Completed</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon icon-amber">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <div class="metric-details">
+            <span class="metric-label">In Progress / Pending</span>
+            <div class="metric-dual-value">
+              <span id="stat-in-progress" class="val-in-progress">0</span>
+              <span class="val-divider">/</span>
+              <span id="stat-pending" class="val-pending">0</span>
+            </div>
+            <span class="metric-subtext">In-flight execution</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon icon-violet">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+          </div>
+          <div class="metric-details">
+            <span class="metric-label">Quality Gate Status</span>
+            <span class="metric-value value-highlight" id="stat-quality-gate">PASSED</span>
+            <span class="metric-subtext">100% automated test compliance</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CI/CD Pipeline Visualizer Stage Flow -->
+    <section class="pipeline-section" id="pipeline-stages-container">
+      <div class="section-title-wrap">
+        <div>
+          <span class="section-badge badge-violet">Continuous Delivery Flow</span>
+          <h2 class="section-title">GitHub Actions Pipeline Workflow</h2>
+        </div>
+        <span class="pipeline-status-text" id="pipeline-live-info">Workflow: <code>.github/workflows/ci-cd.yml</code></span>
+      </div>
+
+      <div class="pipeline-flow-tracker" id="pipeline-flow-steps">
+        <!-- Stage 1 -->
+        <div class="pipeline-step step-complete" id="step-stage-1">
+          <div class="step-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="6" y1="3" x2="6" y2="15"></line>
+              <circle cx="18" cy="6" r="3"></circle>
+              <circle cx="6" cy="18" r="3"></circle>
+              <path d="M18 9a9 9 0 0 1-9 9"></path>
+            </svg>
+          </div>
+          <div class="step-info">
+            <span class="step-num">Stage 1</span>
+            <h3 class="step-name">Source Ingestion</h3>
+            <span class="step-status status-success" id="stage-status-1">Success</span>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+
+        <!-- Stage 2 -->
+        <div class="pipeline-step step-complete" id="step-stage-2">
+          <div class="step-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <div class="step-info">
+            <span class="step-num">Stage 2</span>
+            <h3 class="step-name">Build & Validation</h3>
+            <span class="step-status status-success" id="stage-status-2">Success</span>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+
+        <!-- Stage 3 -->
+        <div class="pipeline-step step-complete" id="step-stage-3">
+          <div class="step-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <div class="step-info">
+            <span class="step-num">Stage 3</span>
+            <h3 class="step-name">Automated Testing</h3>
+            <span class="step-status status-success" id="stage-status-3">Success</span>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+
+        <!-- Stage 4 -->
+        <div class="pipeline-step step-complete" id="step-stage-4">
+          <div class="step-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <div class="step-info">
+            <span class="step-num">Stage 4</span>
+            <h3 class="step-name">Quality Gate</h3>
+            <span class="step-status status-success" id="stage-status-4">Passed</span>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+
+        <!-- Stage 5 -->
+        <div class="pipeline-step step-complete" id="step-stage-5">
+          <div class="step-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+              <path d="M12 12v9"></path>
+              <path d="m8 17 4 4 4-4"></path>
+            </svg>
+          </div>
+          <div class="step-info">
+            <span class="step-num">Stage 5</span>
+            <h3 class="step-name">Deployment</h3>
+            <span class="step-status status-success" id="stage-status-5">Live</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-time Console Log Terminal (collapsible/interactive) -->
+      <div class="pipeline-terminal" id="pipeline-terminal">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+          </div>
+          <span class="terminal-title">CI/CD Execution Log Stream</span>
+          <button type="button" class="btn-clear-logs" id="btn-clear-terminal">Clear</button>
+        </div>
+        <div class="terminal-body" id="terminal-logs">
+          <div class="log-line log-info"><span class="log-time">[00:00:01]</span> <span class="log-tag">[WORKFLOW]</span> Initialized GitHub Actions runner (ubuntu-latest)...</div>
+          <div class="log-line log-success"><span class="log-time">[00:00:02]</span> <span class="log-tag">[STAGE 1]</span> Checkout ref refs/heads/main @ commit a1b2c3d completed.</div>
+          <div class="log-line log-success"><span class="log-time">[00:00:04]</span> <span class="log-tag">[STAGE 2]</span> File structure validation: 9/9 mandatory artifacts verified.</div>
+          <div class="log-line log-success"><span class="log-time">[00:00:07]</span> <span class="log-tag">[STAGE 3]</span> Test Suite: tests/app.test.js executed. 14 assertions passed. 0 failed.</div>
+          <div class="log-line log-success"><span class="log-time">[00:00:09]</span> <span class="log-tag">[STAGE 4]</span> Quality Gate validated: All criteria satisfied for production deploy.</div>
+          <div class="log-line log-success"><span class="log-time">[00:00:12]</span> <span class="log-tag">[STAGE 5]</span> Uploaded Pages artifact. GitHub Pages deployment active.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Task Management Section -->
+    <section class="tasks-section" id="tasks-section">
+      <div class="tasks-header-wrapper">
+        <div>
+          <span class="section-badge">Sprint Backlog</span>
+          <h2 class="section-title">DevOps Sprint Tasks</h2>
+          <p class="section-description">Manage infrastructure, automation, and CI/CD milestones.</p>
+        </div>
+        <div class="tasks-header-actions">
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-reset-tasks">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2.5 2v6h6M21.5 22v-6h-6"></path>
+              <path d="M22 11.5A10 10 0 0 0 3.2 7.2M2 12.5a10 10 0 0 0 18.8 4.2"></path>
+            </svg>
+            Reset Default Tasks
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-export-tasks">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export JSON
+          </button>
+          <button type="button" class="btn btn-primary" id="btn-toggle-task-form">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add New Task
+          </button>
+        </div>
+      </div>
+
+      <!-- Add Task Form (Card / Collapsible) -->
+      <div class="task-form-card" id="task-form-container">
+        <div class="form-header">
+          <h3 class="form-title" id="form-heading">Create New DevOps Task</h3>
+          <button type="button" class="btn-close-form" id="btn-close-form" aria-label="Close task form">&times;</button>
+        </div>
+        <form id="task-form" class="task-form">
+          <div class="form-grid">
+            <div class="form-group form-span-2">
+              <label for="task-title" class="form-label">Task Title <span class="required">*</span></label>
+              <input type="text" id="task-title" name="title" class="form-input" placeholder="e.g. Configure GitHub Actions Workflow for Automated Testing" required>
+            </div>
+
+            <div class="form-group">
+              <label for="task-category" class="form-label">Category</label>
+              <select id="task-category" name="category" class="form-select">
+                <option value="CI/CD">CI/CD & Automation</option>
+                <option value="Infrastructure">Infrastructure & Cloud</option>
+                <option value="Testing">Automated Testing</option>
+                <option value="Security">Security & Compliance</option>
+                <option value="Monitoring">Monitoring & Observability</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="task-priority" class="form-label">Priority</label>
+              <select id="task-priority" name="priority" class="form-select">
+                <option value="Medium">Medium Priority</option>
+                <option value="High">High Priority</option>
+                <option value="Critical">Critical Priority</option>
+                <option value="Low">Low Priority</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="task-status" class="form-label">Initial Status</label>
+              <select id="task-status" name="status" class="form-select">
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+
+            <div class="form-group form-span-2">
+              <label for="task-description" class="form-label">Technical Details / Notes</label>
+              <input type="text" id="task-description" name="description" class="form-input" placeholder="Implementation notes, commands, or exit criteria...">
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" id="btn-cancel-form">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btn-submit-task">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+              Save DevOps Task
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Filter and Search Bar -->
+      <div class="filter-bar">
+        <div class="search-input-wrapper">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="search-tasks" class="search-input" placeholder="Search tasks by title, category, or notes...">
+        </div>
+
+        <div class="filter-controls">
+          <div class="filter-pills" id="filter-status-pills">
+            <button type="button" class="filter-pill active" data-filter="all">All (<span id="count-all">0</span>)</button>
+            <button type="button" class="filter-pill" data-filter="Pending">Pending (<span id="count-pending">0</span>)</button>
+            <button type="button" class="filter-pill" data-filter="In Progress">In Progress (<span id="count-in-progress">0</span>)</button>
+            <button type="button" class="filter-pill" data-filter="Completed">Completed (<span id="count-completed">0</span>)</button>
+          </div>
+
+          <select id="filter-category" class="form-select select-sm">
+            <option value="all">All Categories</option>
+            <option value="CI/CD">CI/CD & Automation</option>
+            <option value="Infrastructure">Infrastructure</option>
+            <option value="Testing">Automated Testing</option>
+            <option value="Security">Security</option>
+            <option value="Monitoring">Monitoring</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Task Card List Container -->
+      <div class="tasks-grid" id="tasks-container">
+        <!-- Dynamically populated via script.js -->
+      </div>
+
+      <!-- Empty State Indicator -->
+      <div class="empty-state" id="empty-state" style="display: none;">
+        <div class="empty-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+        </div>
+        <h4 class="empty-title">No matching DevOps tasks found</h4>
+        <p class="empty-desc">Try adjusting your search criteria or add a new task to your sprint backlog.</p>
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-clear-search">Clear Search Filter</button>
+      </div>
+    </section>
+
+    <!-- Deployment Status Section -->
+    <section class="deployment-section" id="deployment-section">
+      <div class="deployment-card">
+        <div class="deployment-header">
+          <div>
+            <span class="section-badge badge-emerald">Live Deployment Info</span>
+            <h2 class="section-title">Production Environment & Hosting</h2>
+          </div>
+          <div class="deployment-badge">
+            <span class="status-dot dot-emerald"></span>
+            <span>ACTIVE DEPLOYMENT</span>
+          </div>
+        </div>
+
+        <div class="deployment-body">
+          <div class="dep-info-grid">
+            <div class="dep-item">
+              <span class="dep-label">Target Website URL</span>
+              <div class="dep-url-wrap">
+                <a href="#" target="_blank" rel="noopener noreferrer" class="dep-url" id="deploy-url-link">
+                  https://&lt;your-github-username&gt;.github.io/devops-project-3/
+                </a>
+                <button type="button" class="btn-copy-url" id="btn-copy-url" title="Copy URL">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="dep-item">
+              <span class="dep-label">Hosting Platform</span>
+              <span class="dep-value">GitHub Pages (CDN with Automatic TLS/HTTPS)</span>
+            </div>
+
+            <div class="dep-item">
+              <span class="dep-label">CI/CD Orchestration</span>
+              <span class="dep-value">GitHub Actions Workflow (<code>ci-cd.yml</code>)</span>
+            </div>
+
+            <div class="dep-item">
+              <span class="dep-label">Trigger Rule</span>
+              <span class="dep-value">Automated on <code>git push</code> to <code>refs/heads/main</code></span>
+            </div>
+
+            <div class="dep-item">
+              <span class="dep-label">Quality Gate Rule</span>
+              <span class="dep-value">Strict: Stage 2 & 3 must exit code 0 before Deploy stage</span>
+            </div>
+
+            <div class="dep-item">
+              <span class="dep-label">Last Pipeline Execution</span>
+              <span class="dep-value" id="deployment-timestamp">Automated on Git commit</span>
+            </div>
+          </div>
+
+          <div class="deployment-steps-guide">
+            <h4 class="guide-title">How to Verify Deployment on GitHub</h4>
+            <ol class="guide-list">
+              <li>Navigate to your GitHub repository: <code>https://github.com/&lt;username&gt;/devops-project-3</code></li>
+              <li>Click the <strong>Actions</strong> tab to inspect the <code>CI/CD Pipeline</code> execution stages.</li>
+              <li>Go to <strong>Settings &rarr; Pages</strong> and ensure Source is set to <strong>GitHub Actions</strong>.</li>
+              <li>Once the green checkmark displays on the <code>deploy</code> job, open the live URL!</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Notification Toast Container -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <span class="footer-title">DecodeLabs Industrial Training Kit — DevOps Project 3</span>
+        <span class="footer-subtitle">Continuous Integration & Continuous Deployment Fundamentals (Batch 2026)</span>
+      </div>
+      <div class="footer-tech-tags">
+        <span class="tech-tag">HTML5</span>
+        <span class="tech-tag">Vanilla CSS3</span>
+        <span class="tech-tag">JavaScript ES6+</span>
+        <span class="tech-tag">Node.js Test Runner</span>
+        <span class="tech-tag">GitHub Actions</span>
+        <span class="tech-tag">GitHub Pages</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script src="script.js"></script>
+</body>
+</html>

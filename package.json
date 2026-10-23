@@ -1,0 +1,21 @@
+{
+  "name": "devops-project-tracker",
+  "version": "1.0.0",
+  "description": "DecodeLabs DevOps Project 3: Automated CI/CD Pipeline with GitHub Actions and GitHub Pages",
+  "main": "script.js",
+  "scripts": {
+    "test": "node --test tests/app.test.js",
+    "test:jest": "jest",
+    "lint:syntax": "node --check script.js",
+    "validate:structure": "node scripts/validate-structure.js"
+  },
+  "keywords": [
+    "devops",
+    "ci-cd",
+    "github-actions",
+    "github-pages",
+    "decodelabs"
+  ],
+  "author": "DecodeLabs DevOps Engineer",
+  "license": "MIT"
+}
